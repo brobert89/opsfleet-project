@@ -1,11 +1,11 @@
 # StreamPro Analytics Pipeline
 
-This repository contains an end‑to‑end data pipeline built to analyze user behavior on the StreamPro video platform.  
+This repository contains an end-to-end data pipeline built to analyze user behavior on the StreamPro video platform.  
 It ingests raw JSON event logs, combines them with user and video dimensions, and builds a clean analytics model that answers the core business questions defined in the assignment.
 
 ---
 
-## 1. High‑Level Architecture
+## 1. High-Level Architecture
 
 The pipeline follows a standard **Bronze → Silver → Gold** architecture:
 
@@ -15,13 +15,13 @@ The pipeline follows a standard **Bronze → Silver → Gold** architecture:
 - Output: `staging.events`, `staging.users`, `staging.videos`.
 
 ### **Intermediate (Silver)**
-- Events are aggregated into **session‑level** records.
+- Events are aggregated into **session-level** records.
 - Total watch time, engagement signals, session timing, and device/app metadata are computed.
 - Output: `intermediate.user_sessions`.
 
 ### **Mart (Gold)**
-- Session‑level facts enriched with retention, drop‑off and progression metrics.
-- Enables direct dashboarding and ad‑hoc SQL.
+- Session-level facts enriched with retention, drop-off and progression metrics.
+- Enables direct dashboarding and ad-hoc SQL.
 - Output: `mart.fact_user_session`.
 
 ---
@@ -32,7 +32,7 @@ Raw JSON has nested fields, timestamps, and mixed data types.
 To prepare it for analytics:
 
 1. **Load JSON via Spark**  
-   - Spark’s semi‑structured reader infers schema safely.
+   - Spark’s semi-structured reader infers schema safely.
    - `timestamp` cast to proper Spark timestamp.
    - `value` cast to integer.
 
@@ -66,7 +66,7 @@ Aggregated per `(user_id, session_id)`:
 Adds:
 - reached_30s (for Q1)
 - dropoff_under_10s (for Q3)
-- second‑session retention within 3 days (for Q2)
+- second-session retention within 3 days (for Q2)
 - next session timestamp and ordering
 
 This table allows answering all analytical questions directly with simple SQL.
@@ -83,7 +83,7 @@ The **devices.csv** file contains:
 However:
 - The event logs already include **device** and **device_os**, which are the fields required for Q3.
 - `device_model` and `os_version` do not appear in any downstream analytics or business questions.
-- Because the event‑level device metadata is already complete, joining with `devices.csv` adds no analytical value.
+- Because the event-level device metadata is already complete, joining with `devices.csv` adds no analytical value.
 
 Therefore, it was intentionally excluded to keep the model clean and focused.
 
@@ -110,7 +110,7 @@ Therefore, it was intentionally excluded to keep the model clean and focused.
 
 ---
 
-### **Q2 — Which video genres drive the highest 2nd‑session retention within 3 days?**
+### **Q2 — Which video genres drive the highest 2nd-session retention within 3 days?**
 
 **How retention is measured**
 1. Identify consecutive sessions via `session_number`.
@@ -118,7 +118,7 @@ Therefore, it was intentionally excluded to keep the model clean and focused.
    - They have a second session, and
    - It starts within 3 days of the first.
 
-3. For each **first‑session video genre**:
+3. For each **first-session video genre**:
    ```
    (# users with a 2nd session within 3 days)
    -------------------------------------------------
@@ -159,21 +159,21 @@ Because app_version has many different values, results are best visualized with 
 
 **Why this works**
 - Device and app metadata from events is reliable.
-- Session‑level drop-off captures lack of engagement during a session, not a single event.
+- Session-level drop-off captures lack of engagement during a session, not a single event.
 
 ---
 
-## 6. Mermaid Architecture Diagram (as required)
+## 6. Mermaid Architecture Diagram (GitHub-Compatible)
 
 ```mermaid
 flowchart TD
-    A[Raw JSON Logs<br>(events.jsonl)] --> B[Staging<br>Bronze Layer]
-    A2[CSV Dimensions<br>(users.csv, videos.csv)] --> B
+    A["Raw JSON Logs (events.jsonl)"] --> B["Staging (Bronze Layer)"]
+    A2["CSV Dimensions (users.csv, videos.csv)"] --> B
 
-    B --> C[Intermediate Layer<br>Aggregated Sessions]
-    C --> D[Analytics Mart<br>fact_user_session]
+    B --> C["Intermediate Layer (Aggregated Sessions)"]
+    C --> D["Analytics Mart (fact_user_session)"]
 
-    D --> E[Dashboards & SQL Queries<br>(Q1, Q2, Q3)]
+    D --> E["Dashboards & SQL Queries (Q1, Q2, Q3)"]
 ```
 
 ---
@@ -181,7 +181,7 @@ flowchart TD
 ## 7. Final Deliverables
 
 **Included in this repository:**
-- High‑level architecture diagram (Mermaid)
+- High-level architecture diagram (Mermaid)
 - Full staging, intermediate, and mart code
 - Notebook with Q1–Q3 analysis
 - Final Delta table `fact_user_session`
