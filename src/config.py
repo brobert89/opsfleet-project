@@ -1,4 +1,7 @@
 BASE_DATA_PATH = "/Volumes/data/default/project-data"
-STAGING_SCHEMA = "staging"
-INTERMEDIATE_SCHEMA = "intermediate"
-MART_SCHEMA = "mart"
+
+CATALOG = "workspace"
+
+STAGING_SCHEMA = f"{CATALOG}.staging"
+INTERMEDIATE_SCHEMA = f"{CATALOG}.intermediate"
+MART_SCHEMA = f"{CATALOG}.mart"

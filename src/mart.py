@@ -8,13 +8,10 @@ def create_schemas(spark):
     spark.sql(f"CREATE SCHEMA IF NOT EXISTS {MART_SCHEMA}")
 
 
-def build_user_session_facts(spark):
-    us = spark.table(f"{INTERMEDIATE_SCHEMA}.user_sessions")
-
+def build_fact_user_session(spark):
     w_user = Window.partitionBy("user_id").orderBy("session_start_ts")
-
-    mart = (
-        us
+    (
+        spark.table(f"{INTERMEDIATE_SCHEMA}.user_sessions")
         .withColumn(
             "reached_30s",
             F.when(F.col("total_watch_time_s") >= 30, F.lit(1)).otherwise(0)
@@ -24,7 +21,7 @@ def build_user_session_facts(spark):
             F.when(F.col("total_watch_time_s") < 10, F.lit(1)).otherwise(0)
         )
         .withColumn("next_session_start_ts", F.lead("session_start_ts").over(w_user))
-        .withColumn("next_session_number",    F.lead("session_number").over(w_user))
+        .withColumn("next_session_number", F.lead("session_number").over(w_user))
         .withColumn(
             "retained_next_session_within_3d",
             F.when(
@@ -34,11 +31,13 @@ def build_user_session_facts(spark):
                 F.lit(1)
             ).otherwise(0)
         )
+        .write
+        .format("delta")
+        .mode("overwrite")
+        .saveAsTable(f"{MART_SCHEMA}.fact_user_session")
     )
-
-    mart.write.format("delta").mode("overwrite").saveAsTable(f"{MART_SCHEMA}.user_session_facts")
-
+    
 
 def run_mart(spark):
     create_schemas(spark)
-    build_user_session_facts(spark)
+    build_fact_user_session(spark)
