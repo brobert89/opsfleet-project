@@ -163,7 +163,7 @@ Because app_version has many different values, results are best visualized with 
 
 ---
 
-## 6. Mermaid Architecture Diagram (GitHub-Compatible)
+## 6. Architecture Diagram
 
 ```mermaid
 flowchart TD
